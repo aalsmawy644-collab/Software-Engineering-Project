@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}تسجيل الدخول — نظام الشفاء للرعاية الصحية{% endblock %}
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 75vh;">
+    <div class="col-11 col-sm-9 col-md-7 col-lg-5 col-xl-4">
+        <div class="card shadow-lg border-0 rounded-4 overflow-hidden my-4">
+            <div class="card-header text-white text-center py-4 border-0" style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%) !important;">
+                <div class="mb-2" style="font-size: 2.8rem;">
+                    🏥
+                </div>
+                <h3 class="mb-1 fw-bold">نظام الشفاء الطبي</h3>
+                <p class="mb-0 text-white-50 small">بوابة الرعاية الصحية والخدمات السريرية</p>
+            </div>
+            <div class="card-body p-4 bg-white">
+                <div class="text-center mb-4">
+                    <span class="badge bg-light text-primary border px-3 py-1">تسجيل الدخول إلى حسابك</span>
+                </div>
+                <form method="POST" action="{{ url_for('auth.login') }}" novalidate>
+                    <div class="mb-3">
+                        <label for="username" class="form-label fw-semibold small text-secondary">اسم المستخدم</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted border-start-0">
+                                👤
+                            </span>
+                            <input type="text" class="form-control border-end-0 pe-0"
+                                   id="username" name="username"
+                                   placeholder="أدخل اسم المستخدم" required autofocus
+                                   autocomplete="username">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label fw-semibold small text-secondary">كلمة المرور</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted border-start-0">
+                                🔒
+                            </span>
+                            <input type="password" class="form-control border-end-0 pe-0"
+                                   id="password" name="password"
+                                   placeholder="أدخل كلمة المرور" required
+                                   autocomplete="current-password">
+                            <button class="btn btn-outline-secondary" type="button" id="togglePassword"
+                                    title="إظهار/إخفاء كلمة المرور">
+                                <span id="toggleIcon">👁️</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                            <label class="form-check-label small text-muted" for="remember">تذكر بياناتي في هذا المتصفح</label>
+                        </div>
+                    </div>
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-primary btn-lg fw-semibold shadow-sm py-2">
+                            🔑 الدخول إلى النظام
+                        </button>
+                    </div>
+                </form>
+
+                <div class="text-center pt-3 border-top">
+                    <p class="text-muted small mb-2">مريض جديد وترغب بفتح ملف صحي بالعيادة؟</p>
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-outline-success w-100 fw-semibold py-2">
+                        📝 فتح ملف مريض جديد والانضمام
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('togglePassword').addEventListener('click', function () {
+    const pwd = document.getElementById('password');
+    const icon = document.getElementById('toggleIcon');
+    if (pwd.type === 'password') {
+        pwd.type = 'text';
+        icon.textContent = '🙈';
+    } else {
+        pwd.type = 'password';
+        icon.textContent = '👁️';
+    }
+});
+</script>
+{% endblock %}

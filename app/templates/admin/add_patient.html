@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}إضافة مريض جديد — نظام إدارة العيادة{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">➕ إضافة مريض جديد</h2>
+        <span class="text-muted">تسجيل ملف مريض جديد في قاعدة بيانات العيادة</span>
+    </div>
+    <a href="{{ url_for('admin.patients') }}" class="btn btn-outline-secondary">
+        &larr; العودة للقائمة
+    </a>
+</div>
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('admin.add_patient') }}" novalidate>
+                    <h5 class="text-primary fw-bold mb-3">👤 بيانات الحساب الشخصي</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">الاسم الأول *</label>
+                            <input type="text" class="form-control" name="first_name" required placeholder="مثال: خالد">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">اسم العائلة *</label>
+                            <input type="text" class="form-control" name="last_name" required placeholder="مثال: القحطاني">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">اسم المستخدم للدخول *</label>
+                            <input type="text" class="form-control" name="username" required placeholder="khaled.q">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">البريد الإلكتروني *</label>
+                            <input type="email" class="form-control" name="email" required placeholder="khaled@email.com">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">كلمة المرور *</label>
+                            <input type="password" class="form-control" name="password" required placeholder="6 أحرف على الأقل">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">رقم الهاتف</label>
+                            <input type="tel" class="form-control" name="phone" placeholder="+966 55 000 0000">
+                        </div>
+                    </div>
+                    <hr>
+                    <h5 class="text-info fw-bold mb-3">🩺 البيانات الديموغرافية والطبية</h5>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">تاريخ الميلاد *</label>
+                            <input type="date" class="form-control" name="date_of_birth" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">الجنس *</label>
+                            <select class="form-select" name="gender" required>
+                                <option value="">اختر...</option>
+                                <option value="Male">ذكر</option>
+                                <option value="Female">أنثى</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">فصيلة الدم</label>
+                            <select class="form-select" name="blood_type">
+                                <option value="">اختر الفصيلة...</option>
+                                <option>A+</option><option>A-</option>
+                                <option>B+</option><option>B-</option>
+                                <option>AB+</option><option>AB-</option>
+                                <option>O+</option><option>O-</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">العنوان السكني</label>
+                            <input type="text" class="form-control" name="address" placeholder="المدينة، الحي، الشارع...">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">اسم شخص للطوارئ</label>
+                            <input type="text" class="form-control" name="emergency_contact" placeholder="اسم القريب...">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">هاتف الطوارئ</label>
+                            <input type="tel" class="form-control" name="emergency_phone" placeholder="+966 50 000 0000">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">الحساسية الدوائية / الغذائية</label>
+                            <textarea class="form-control" name="allergies" rows="2" placeholder="حساسية بنسلين، سلفا، لاتكس..."></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">الأمراض المزمنة</label>
+                            <textarea class="form-control" name="chronic_conditions" rows="2" placeholder="ضغط الدم، السكري، الربو..."></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">رقم التأمين الطبي (إن وجد)</label>
+                            <input type="text" class="form-control" name="insurance_number" placeholder="INS-2024-999">
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary px-4 py-2 fw-semibold">
+                            ✅ إضافة وتثبيت المريض
+                        </button>
+                        <a href="{{ url_for('admin.patients') }}" class="btn btn-outline-secondary px-4 py-2">
+                            إلغاء
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

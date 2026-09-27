@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}إضافة طبيب جديد — نظام الشفاء للرعاية الصحية{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">➕ إضافة طبيب جديد</h2>
+        <span class="text-muted">إنشاء حساب طبيب جديد وتحديد التخصص وساعات الدوام</span>
+    </div>
+    <a href="{{ url_for('admin.doctors') }}" class="btn btn-outline-secondary">
+        &larr; العودة للقائمة
+    </a>
+</div>
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="card shadow-sm border">
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('admin.add_doctor') }}" novalidate>
+                    <h5 class="text-primary fw-bold mb-3">👤 بيانات الحساب الشخصي</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">الاسم الأول *</label>
+                            <input type="text" class="form-control" name="first_name" required placeholder="مثال: أحمد">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">اسم العائلة *</label>
+                            <input type="text" class="form-control" name="last_name" required placeholder="مثال: الغامدي">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">اسم المستخدم للدخول *</label>
+                            <input type="text" class="form-control" name="username" required placeholder="dr.ahmed">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">البريد الإلكتروني *</label>
+                            <input type="email" class="form-control" name="email" required placeholder="ahmed@clinic.com">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">كلمة المرور *</label>
+                            <input type="password" class="form-control" name="password" required placeholder="6 أحرف على الأقل">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">رقم الهاتف</label>
+                            <input type="tel" class="form-control" name="phone" placeholder="+966 50 000 0000">
+                        </div>
+                    </div>
+                    <hr>
+                    <h5 class="text-success fw-bold mb-3">🏅 البيانات المهنية والتخصص وساعات العمل</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">التخصص الطبي *</label>
+                            <select class="form-select" name="specialty" required>
+                                <option value="">اختر التخصص...</option>
+                                <option value="General Medicine">طب عام وباطنية (General Medicine)</option>
+                                <option value="Cardiology">أمراض القلب (Cardiology)</option>
+                                <option value="Dermatology">جلدية وتجميل (Dermatology)</option>
+                                <option value="Neurology">مخ وأعصاب (Neurology)</option>
+                                <option value="Orthopedics">عظام ومفاصل (Orthopedics)</option>
+                                <option value="Pediatrics">طب الأطفال (Pediatrics)</option>
+                                <option value="Psychiatry">طب نفسي (Psychiatry)</option>
+                                <option value="Surgery">جراحة عامة (Surgery)</option>
+                                <option value="Ophthalmology">طب وجراحة العيون (Ophthalmology)</option>
+                                <option value="ENT">أنف وأذن وحنجرة (ENT)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">رقم ترخيص مزاولة المهنة *</label>
+                            <input type="text" class="form-control" name="license_number" required placeholder="LIC-2024-100">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">بداية الدوام اليومي *</label>
+                            <input type="time" class="form-control" name="working_start_time" value="09:00" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">نهاية الدوام اليومي *</label>
+                            <input type="time" class="form-control" name="working_end_time" value="17:00" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">سنوات الخبرة</label>
+                            <input type="number" class="form-control" name="experience_years" min="0" max="60" value="5">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">سعر الكشف (ر.س)</label>
+                            <input type="number" class="form-control" name="consultation_fee" min="0" step="0.01" value="150.00">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">نبذة مهنية وسيرة ذاتية مختصرة</label>
+                            <textarea class="form-control" name="bio" rows="3" placeholder="نبذة عن خبرات الطبيب والمؤهلات الأكاديمية..."></textarea>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-4 pt-3 border-top">
+                        <button type="submit" class="btn btn-success px-4 py-2 fw-semibold">
+                            ✅ حفظ وإضافة الطبيب
+                        </button>
+                        <a href="{{ url_for('admin.doctors') }}" class="btn btn-outline-secondary px-4 py-2">
+                            إلغاء
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

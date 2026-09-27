@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}فتح ملف مريض جديد — نظام الشفاء للرعاية الصحية{% endblock %}
+{% block content %}
+<div class="row justify-content-center align-items-center my-4">
+    <div class="col-11 col-sm-10 col-md-8 col-lg-7 col-xl-6">
+        <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+            <div class="card-header text-white text-center py-4 border-0" style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%) !important;">
+                <div class="mb-2" style="font-size: 2.6rem;">
+                    📝
+                </div>
+                <h3 class="mb-1 fw-bold">فتح ملف صحي وتسجيل مريض جديد</h3>
+                <p class="mb-0 text-white-50 small">بوابة المرضى &bull; نظام الشفاء للرعاية الصحية</p>
+            </div>
+            <div class="card-body p-4 bg-white">
+                <form method="POST" action="{{ url_for('auth.register') }}" novalidate>
+                    <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+                        <span class="fs-5">👤</span>
+                        <h6 class="text-primary fw-bold mb-0">بيانات الحساب الأساسية</h6>
+                    </div>
+                    
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">الاسم الأول *</label>
+                            <input type="text" class="form-control" name="first_name" value="{{ form_data.get('first_name', '') }}" required placeholder="مثال: يوسف">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">اسم العائلة *</label>
+                            <input type="text" class="form-control" name="last_name" value="{{ form_data.get('last_name', '') }}" required placeholder="مثال: الزهراني">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">اسم المستخدم للدخول *</label>
+                            <input type="text" class="form-control" name="username" value="{{ form_data.get('username', '') }}" required placeholder="yousef.z">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">البريد الإلكتروني *</label>
+                            <input type="email" class="form-control" name="email" value="{{ form_data.get('email', '') }}" required placeholder="yousef@email.com">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">كلمة المرور *</label>
+                            <input type="password" class="form-control" name="password" required placeholder="6 أحرف على الأقل">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">تأكيد كلمة المرور *</label>
+                            <input type="password" class="form-control" name="confirm_password" required placeholder="أعد كتابة كلمة المرور">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold small text-secondary">رقم الهاتف للتواصل</label>
+                            <input type="tel" class="form-control" name="phone" value="{{ form_data.get('phone', '') }}" placeholder="+966 50 000 0000">
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+                        <span class="fs-5">🩺</span>
+                        <h6 class="text-primary fw-bold mb-0">المعلومات الطبية والصحية للمريض</h6>
+                    </div>
+                    
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small text-secondary">تاريخ الميلاد *</label>
+                            <input type="date" class="form-control" name="date_of_birth" value="{{ form_data.get('date_of_birth', '') }}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small text-secondary">الجنس *</label>
+                            <select class="form-select" name="gender" required>
+                                <option value="">اختر الجنس...</option>
+                                <option value="Male" {% if form_data.get('gender') == 'Male' %}selected{% endif %}>ذكر</option>
+                                <option value="Female" {% if form_data.get('gender') == 'Female' %}selected{% endif %}>أنثى</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small text-secondary">فصيلة الدم</label>
+                            <select class="form-select" name="blood_type">
+                                <option value="">غير محدد</option>
+                                {% for bt in ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] %}
+                                <option value="{{ bt }}" {% if form_data.get('blood_type') == bt %}selected{% endif %}>{{ bt }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold small text-secondary">العنوان السكني</label>
+                            <input type="text" class="form-control" name="address" value="{{ form_data.get('address', '') }}" placeholder="المدينة، الحي...">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">جهة اتصال للطوارئ (الاسم وصفة القرابة)</label>
+                            <input type="text" class="form-control" name="emergency_contact" value="{{ form_data.get('emergency_contact', '') }}" placeholder="مثال: محمد (الأخ)">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">هاتف الطوارئ</label>
+                            <input type="tel" class="form-control" name="emergency_phone" value="{{ form_data.get('emergency_phone', '') }}" placeholder="+966 55 000 0000">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">الحساسية الدوائية (إن وجدت)</label>
+                            <textarea class="form-control" name="allergies" rows="2" placeholder="بنسلين، سلفا، أسبرين... (أو لا يوجد)">{{ form_data.get('allergies', '') }}</textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">الأمراض المزمنة (إن وجدت)</label>
+                            <textarea class="form-control" name="chronic_conditions" rows="2" placeholder="ضغط الدم، السكري، الربو... (أو لا يوجد)">{{ form_data.get('chronic_conditions', '') }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg fw-semibold shadow-sm py-2">
+                            ✅ إتمام التسجيل وتأكيد فتح الملف
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer bg-light text-center py-3 border-0">
+                <span class="text-muted small">لديك حساب ومسجل بالفعل في العيادة؟</span>
+                <a href="{{ url_for('auth.login') }}" class="fw-bold text-primary text-decoration-none ms-1">
+                    تسجيل الدخول هنا &larr;
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

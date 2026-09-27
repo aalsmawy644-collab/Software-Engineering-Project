@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}نظام الشفاء للرعاية الصحية وإدارة العيادات{% endblock %}</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231e40af'><path d='M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z'/></svg>">
+    <!-- Local Bootstrap 5 CSS -->
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <!-- Enterprise Arabic RTL CSS -->
+    <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
+</head>
+<body>
+{% if current_user.is_authenticated %}
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top no-print">
+    <div class="container-fluid px-lg-4">
+        <a class="navbar-brand" href="{{ url_for('auth.dashboard_redirect') }}">
+            <span style="font-size: 1.4rem;">🏥</span>
+            <span>نظام الشفاء الطبي</span>
+            <span class="navbar-brand-badge">النسخة المؤسسية</span>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="تبديل القائمة">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                {% if current_user.is_admin() %}
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'admin.dashboard' %}active{% endif %}"
+                       href="{{ url_for('admin.dashboard') }}">
+                        <span>📊</span> لوحة التحكم
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint and 'doctor' in request.endpoint %}active{% endif %}"
+                       href="{{ url_for('admin.doctors') }}">
+                        <span>🩺</span> الأطباء
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'admin.patients' %}active{% endif %}"
+                       href="{{ url_for('admin.patients') }}">
+                        <span>👥</span> المرضى
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'admin.users' %}active{% endif %}"
+                       href="{{ url_for('admin.users') }}">
+                        <span>⚙️</span> المستخدمين
+                    </a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                        <span>📑</span> العمليات السريرية
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('appointment.list_appointments') }}">
+                            <span>📅</span> إدارة المواعيد
+                        </a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('medical_record.list_records') }}">
+                            <span>📋</span> السجلات الطبية
+                        </a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('prescription.list_prescriptions') }}">
+                            <span>💊</span> الوصفات الدوائية
+                        </a></li>
+                    </ul>
+                </li>
+                {% elif current_user.is_doctor() %}
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'doctor.dashboard' %}active{% endif %}"
+                       href="{{ url_for('doctor.dashboard') }}">
+                        <span>📊</span> لوحة الطبيب
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'doctor.appointments' %}active{% endif %}"
+                       href="{{ url_for('doctor.appointments') }}">
+                        <span>📅</span> جدول مواعيدي
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'doctor.patients' %}active{% endif %}"
+                       href="{{ url_for('doctor.patients') }}">
+                        <span>👥</span> مرضاي
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint and 'medical_record' in request.endpoint %}active{% endif %}"
+                       href="{{ url_for('medical_record.list_records') }}">
+                        <span>📋</span> السجلات الطبية
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint and 'prescription' in request.endpoint %}active{% endif %}"
+                       href="{{ url_for('prescription.list_prescriptions') }}">
+                        <span>💊</span> الوصفات العلاجية
+                    </a>
+                </li>
+                {% elif current_user.is_patient() %}
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'patient.dashboard' %}active{% endif %}"
+                       href="{{ url_for('patient.dashboard') }}">
+                        <span>📊</span> ملفي الصحي
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint and 'appointment' in request.endpoint %}active{% endif %}"
+                       href="{{ url_for('patient.appointments') }}">
+                        <span>📅</span> مواعيدي
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint and 'medical_record' in request.endpoint %}active{% endif %}"
+                       href="{{ url_for('patient.medical_records') }}">
+                        <span>📋</span> تقاريري الطبية
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint and 'prescription' in request.endpoint %}active{% endif %}"
+                       href="{{ url_for('patient.prescriptions') }}">
+                        <span>💊</span> أدويتي ووصفاتي
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" data-bs-toggle="dropdown">
+                        <span class="avatar-sm">
+                            {{ current_user.first_name[0] }}{{ current_user.last_name[0] }}
+                        </span>
+                        <div class="d-flex flex-column text-end">
+                            <span class="fw-bold lh-sm">{{ current_user.full_name }}</span>
+                            <small class="opacity-75 lh-sm" style="font-size: 0.72rem;">
+                                {% if current_user.role_name == 'admin' %}مدير النظام{% elif current_user.role_name == 'doctor' %}طبيب معالج{% else %}مريض{% endif %}
+                            </small>
+                        </div>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <div class="dropdown-header text-end">
+                                <span class="d-flex align-items-center justify-content-end gap-1 mb-1">
+                                    <span class="status-indicator"></span>
+                                    <strong class="text-dark">{{ current_user.full_name }}</strong>
+                                </span>
+                                <small class="text-muted">{{ current_user.email }}</small>
+                            </div>
+                        </li>
+                        {% if current_user.is_doctor() %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('doctor.profile') }}">
+                                <span>👤</span> الملف الشخصي
+                            </a>
+                        </li>
+                        {% endif %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item text-danger fw-semibold" href="{{ url_for('auth.logout') }}">
+                                <span>🚪</span> تسجيل الخروج
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endif %}
+
+<main class="main-content py-4">
+    <div class="container-fluid px-lg-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm no-print mb-4" role="alert">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        {% if category == 'success' %}✅{% elif category == 'danger' %}⚠️{% elif category == 'warning' %}🔔{% else %}ℹ️{% endif %}
+                        <span class="ms-2">{{ message }}</span>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="إغلاق"></button>
+                </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </div>
+</main>
+
+<footer class="footer no-print">
+    <div class="container-fluid px-lg-4 text-center">
+        <div class="row align-items-center">
+            <div class="col-md-6 text-md-start mb-2 mb-md-0">
+                <span class="fw-semibold text-dark">نظام الشفاء للرعاية الصحية وإدارة العيادات</span>
+                <span class="text-muted d-block small">&copy; 2024 جميع الحقوق محفوظة — الإصدار المعتمد v2.4</span>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <span class="badge bg-light text-secondary border">منصة إدارة سريرية مشفرة ومؤمنة بالكامل</span>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Local Bootstrap 5 JS -->
+<script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

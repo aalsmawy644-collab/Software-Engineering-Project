@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}تعديل بيانات المريض — نظام إدارة العيادة{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">✏️ تعديل بيانات المريض</h2>
+        <span class="text-muted">{{ patient.user.full_name }}</span>
+    </div>
+    <a href="{{ url_for('admin.patients') }}" class="btn btn-outline-secondary">
+        &larr; العودة للقائمة
+    </a>
+</div>
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('admin.edit_patient', patient_id=patient.id) }}" novalidate>
+                    <h5 class="text-primary fw-bold mb-3">👤 بيانات الحساب</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">الاسم الأول *</label>
+                            <input type="text" class="form-control" name="first_name" value="{{ patient.user.first_name }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">اسم العائلة *</label>
+                            <input type="text" class="form-control" name="last_name" value="{{ patient.user.last_name }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">البريد الإلكتروني *</label>
+                            <input type="email" class="form-control" name="email" value="{{ patient.user.email }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">رقم الهاتف</label>
+                            <input type="tel" class="form-control" name="phone" value="{{ patient.user.phone or '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">كلمة المرور الجديدة <small class="text-muted">(اتركها فارغة للإبقاء على الحالية)</small></label>
+                            <input type="password" class="form-control" name="new_password">
+                        </div>
+                    </div>
+                    <hr>
+                    <h5 class="text-info fw-bold mb-3">🩺 البيانات الطبية والشخصية</h5>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">تاريخ الميلاد</label>
+                            <input type="date" class="form-control" name="date_of_birth" value="{{ patient.date_of_birth.strftime('%Y-%m-%d') }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">الجنس</label>
+                            <select class="form-select" name="gender">
+                                <option value="Male" {% if patient.gender == 'Male' %}selected{% endif %}>ذكر</option>
+                                <option value="Female" {% if patient.gender == 'Female' %}selected{% endif %}>أنثى</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">فصيلة الدم</label>
+                            <select class="form-select" name="blood_type">
+                                <option value="">غير محدد</option>
+                                {% for bt in ['A+','A-','B+','B-','AB+','AB-','O+','O-'] %}
+                                <option value="{{ bt }}" {% if patient.blood_type == bt %}selected{% endif %}>{{ bt }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">العنوان</label>
+                            <input type="text" class="form-control" name="address" value="{{ patient.address or '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">اسم شخص للطوارئ</label>
+                            <input type="text" class="form-control" name="emergency_contact" value="{{ patient.emergency_contact or '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">هاتف الطوارئ</label>
+                            <input type="tel" class="form-control" name="emergency_phone" value="{{ patient.emergency_phone or '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">الحساسية</label>
+                            <textarea class="form-control" name="allergies" rows="2">{{ patient.allergies or '' }}</textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">الأمراض المزمنة</label>
+                            <textarea class="form-control" name="chronic_conditions" rows="2">{{ patient.chronic_conditions or '' }}</textarea>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary px-4 py-2 fw-semibold">
+                            💾 حفظ التعديلات
+                        </button>
+                        <a href="{{ url_for('admin.patients') }}" class="btn btn-outline-secondary px-4 py-2">
+                            إلغاء
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

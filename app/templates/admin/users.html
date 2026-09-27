@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}إدارة المستخدمين — نظام إدارة العيادة{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">⚙️ إدارة حسابات المستخدمين</h2>
+        <span class="text-muted">التحكم في تفعيل وتعطيل صلاحيات الوصول للنظام</span>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>الاسم الكامل</th>
+                        <th>اسم المستخدم</th>
+                        <th>البريد الإلكتروني</th>
+                        <th>الدور / الصلاحية</th>
+                        <th>الحالة</th>
+                        <th>تاريخ الإنشاء</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td class="fw-bold">{{ user.full_name }}</td>
+                    <td><code>{{ user.username }}</code></td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        <span class="badge bg-{% if user.role.name == 'admin' %}danger{% elif user.role.name == 'doctor' %}success{% else %}primary{% endif %}">
+                            {% if user.role.name == 'admin' %}مدير النظام{% elif user.role.name == 'doctor' %}طبيب{% else %}مريض{% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge bg-{% if user.is_active %}success{% else %}secondary{% endif %}">
+                            {% if user.is_active %}مفعل{% else %}معطل{% endif %}
+                        </span>
+                    </td>
+                    <td><small class="text-muted">{{ user.created_at.strftime('%Y-%m-%d') }}</small></td>
+                    <td>
+                        {% if user.id != current_user.id %}
+                        <form method="POST" action="{{ url_for('admin.toggle_user', user_id=user.id) }}" class="d-inline">
+                            <button class="btn btn-sm btn-outline-{% if user.is_active %}warning{% else %}success{% endif %}">
+                                {% if user.is_active %}⏸️ تعطيل الحساب{% else %}▶️ تفعيل الحساب{% endif %}
+                            </button>
+                        </form>
+                        {% else %}
+                        <span class="text-muted small">حسابك الحالي</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

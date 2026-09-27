@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}إدارة الأطباء — نظام إدارة العيادة{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">🩺 إدارة الكادر الطبي</h2>
+        <span class="text-muted">عرض وتعديل وإضافة أطباء العيادة</span>
+    </div>
+    <a href="{{ url_for('admin.add_doctor') }}" class="btn btn-success px-3 py-2 shadow-sm">
+        ➕ إضافة طبيب جديد
+    </a>
+</div>
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>اسم الطبيب</th>
+                        <th>التخصص</th>
+                        <th>رقم الترخيص</th>
+                        <th>الخبرة</th>
+                        <th>سعر الكشف</th>
+                        <th>الحالة</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for doctor in doctors %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>
+                        <div class="fw-bold">د. {{ doctor.user.full_name }}</div>
+                        <small class="text-muted">{{ doctor.user.email }} &bull; {{ doctor.user.phone or 'بدون هاتف' }}</small>
+                    </td>
+                    <td><span class="badge bg-primary text-white">{{ doctor.specialty }}</span></td>
+                    <td><code>{{ doctor.license_number }}</code></td>
+                    <td>{{ doctor.experience_years }} سنوات</td>
+                    <td class="fw-bold text-success">{{ '%.2f'|format(doctor.consultation_fee) }} ر.س</td>
+                    <td>
+                        <span class="badge bg-{% if doctor.is_available %}success{% else %}secondary{% endif %}">
+                            {% if doctor.is_available %}متاح للكشف{% else %}غير متاح{% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('admin.edit_doctor', doctor_id=doctor.id) }}" class="btn btn-sm btn-outline-primary" title="تعديل">✏️ تعديل</a>
+                        <form method="POST" action="{{ url_for('admin.delete_doctor', doctor_id=doctor.id) }}" class="d-inline" onsubmit="return confirm('هل أنت متأكد من حذف الطبيب د. {{ doctor.user.full_name }}؟')">
+                            <button class="btn btn-sm btn-outline-danger" title="حذف">🗑️ حذف</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="8" class="text-center text-muted py-5">لا يوجد أطباء مسجلين. <a href="{{ url_for('admin.add_doctor') }}">أضف طبيباً الآن</a></td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

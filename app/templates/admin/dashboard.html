@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}لوحة تحكم المدير — نظام إدارة العيادة{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">📊 لوحة التحكم الإدارية</h2>
+        <span class="text-muted">مرحباً بك، {{ current_user.full_name }} (مدير النظام)</span>
+    </div>
+    <div>
+        <span class="badge bg-primary px-3 py-2 fs-6">📅 اليوم: {{ todays_date if todays_date else '' }}</span>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm stat-card-primary text-white p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <p class="mb-1 opacity-75">إجمالي المرضى</p>
+                    <h2 class="mb-0 fw-bold">{{ total_patients }}</h2>
+                </div>
+                <div style="font-size: 2.5rem;">👥</div>
+            </div>
+            <a href="{{ url_for('admin.patients') }}" class="text-white text-decoration-none small mt-3 d-inline-block">عرض جميع المرضى &larr;</a>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm stat-card-success text-white p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <p class="mb-1 opacity-75">إجمالي الأطباء</p>
+                    <h2 class="mb-0 fw-bold">{{ total_doctors }}</h2>
+                </div>
+                <div style="font-size: 2.5rem;">🩺</div>
+            </div>
+            <a href="{{ url_for('admin.doctors') }}" class="text-white text-decoration-none small mt-3 d-inline-block">إدارة الكادر الطبي &larr;</a>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm stat-card-info text-white p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <p class="mb-1 opacity-75">مواعيد اليوم</p>
+                    <h2 class="mb-0 fw-bold">{{ todays_appointments }}</h2>
+                </div>
+                <div style="font-size: 2.5rem;">📅</div>
+            </div>
+            <a href="{{ url_for('appointment.list_appointments') }}" class="text-white text-decoration-none small mt-3 d-inline-block">عرض جدول المواعيد &larr;</a>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm stat-card-warning p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <p class="mb-1 opacity-75">المواعيد المكتملة</p>
+                    <h2 class="mb-0 fw-bold">{{ completed_appointments }}</h2>
+                </div>
+                <div style="font-size: 2.5rem;">✅</div>
+            </div>
+            <span class="text-muted small mt-3 d-inline-block">إجمالي الكشوفات المنجزة</span>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white fw-semibold py-3 d-flex justify-content-between align-items-center">
+                <span>🕒 أحدث المواعيد والحجوزات</span>
+                <a href="{{ url_for('appointment.list_appointments') }}" class="btn btn-sm btn-outline-primary">عرض الكل</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>المريض</th>
+                                <th>الطبيب المعالج</th>
+                                <th>التاريخ</th>
+                                <th>الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for appt in recent_appointments %}
+                        <tr>
+                            <td class="fw-semibold">{{ appt.patient.user.full_name }}</td>
+                            <td>د. {{ appt.doctor.user.full_name }}</td>
+                            <td>{{ appt.appointment_date.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                <span class="badge bg-{% if appt.status == 'Completed' %}success{% elif appt.status == 'Cancelled' %}danger{% else %}primary{% endif %}">
+                                    {% if appt.status == 'Completed' %}مكتمل{% elif appt.status == 'Cancelled' %}ملغي{% else %}مجدول{% endif %}
+                                </span>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="4" class="text-center text-muted py-4">لا توجد مواعيد مسجلة حتى الآن</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 mb-3">
+            <div class="card-header bg-white fw-semibold py-3">📈 إحصائيات النظام السريعة</div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span class="text-muted">إجمالي المستخدمين</span><strong>{{ total_users }}</strong>
+                </div>
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span class="text-muted">مواعيد قادمة</span><strong class="text-primary">{{ scheduled_appointments }}</strong>
+                </div>
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span class="text-muted">كشوفات منتهية</span><strong class="text-success">{{ completed_appointments }}</strong>
+                </div>
+                <div class="d-flex justify-content-between py-2">
+                    <span class="text-muted">حجوزات اليوم</span><strong class="text-info">{{ todays_appointments }}</strong>
+                </div>
+            </div>
+        </div>
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white fw-semibold py-3">⚡ إجراءات سريعة</div>
+            <div class="card-body d-grid gap-2">
+                <a href="{{ url_for('admin.add_doctor') }}" class="btn btn-outline-success">
+                    ➕ إضافة طبيب جديد
+                </a>
+                <a href="{{ url_for('admin.add_patient') }}" class="btn btn-outline-primary">
+                    ➕ إضافة مريض جديد
+                </a>
+                <a href="{{ url_for('appointment.book') }}" class="btn btn-outline-info">
+                    📅 حجز موعد كشف
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

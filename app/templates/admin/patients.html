@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}إدارة المرضى — نظام إدارة العيادة{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">👥 إدارة سجلات المرضى</h2>
+        <span class="text-muted">عرض وتعديل وإضافة ملفات المرضى في العيادة</span>
+    </div>
+    <a href="{{ url_for('admin.add_patient') }}" class="btn btn-primary px-3 py-2 shadow-sm">
+        ➕ إضافة مريض جديد
+    </a>
+</div>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-3">
+        <form method="GET" action="{{ url_for('admin.patients') }}" class="row g-2 align-items-center">
+            <div class="col-md-8">
+                <div class="input-group">
+                    <span class="input-group-text bg-white">🔍</span>
+                    <input type="text" class="form-control" name="search" placeholder="ابحث بالاسم أو البريد الإلكتروني..." value="{{ search }}">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">بحث</button>
+            </div>
+            <div class="col-md-2">
+                <a href="{{ url_for('admin.patients') }}" class="btn btn-outline-secondary w-100">إلغاء التصفية</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>اسم المريض</th>
+                        <th>الجنس</th>
+                        <th>العمر</th>
+                        <th>فصيلة الدم</th>
+                        <th>رقم الهاتف</th>
+                        <th>تاريخ التسجيل</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for patient in patients %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>
+                        <div class="fw-bold">{{ patient.user.full_name }}</div>
+                        <small class="text-muted">{{ patient.user.email }}</small>
+                    </td>
+                    <td>
+                        {% if patient.gender == 'Male' %}ذكر{% elif patient.gender == 'Female' %}أنثى{% else %}{{ patient.gender }}{% endif %}
+                    </td>
+                    <td>{{ patient.age }} سنة</td>
+                    <td><span class="badge bg-danger text-white">{{ patient.blood_type or 'غير محدد' }}</span></td>
+                    <td>{{ patient.user.phone or 'غير متوفر' }}</td>
+                    <td><small class="text-muted">{{ patient.created_at.strftime('%Y-%m-%d') }}</small></td>
+                    <td>
+                        <a href="{{ url_for('admin.edit_patient', patient_id=patient.id) }}" class="btn btn-sm btn-outline-primary" title="تعديل">✏️ تعديل</a>
+                        <form method="POST" action="{{ url_for('admin.delete_patient', patient_id=patient.id) }}" class="d-inline" onsubmit="return confirm('هل أنت متأكد من حذف المريض {{ patient.user.full_name }}؟')">
+                            <button class="btn btn-sm btn-outline-danger" title="حذف">🗑️ حذف</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="8" class="text-center text-muted py-5">لا يوجد مرضى مسجلين. <a href="{{ url_for('admin.add_patient') }}">أضف مريضاً الآن</a></td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
