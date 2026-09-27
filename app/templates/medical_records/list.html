@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}السجلات الطبية — نظام إدارة العيادة{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">📋 السجلات والتقارير الطبية (EMR)</h2>
+        <span class="text-muted">استعراض ومتابعة التشخيصات والخطط العلاجية</span>
+    </div>
+    {% if current_user.is_doctor() or current_user.is_admin() %}
+    <a href="{{ url_for('medical_record.create') }}" class="btn btn-primary px-3 py-2 shadow-sm">
+        ➕ إنشاء تقرير طبي جديد
+    </a>
+    {% endif %}
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>تاريخ الكشف</th>
+                        <th>اسم المريض</th>
+                        <th>الطبيب المعالج</th>
+                        <th>الشكوى الرئيسية</th>
+                        <th>التشخيص الطبي</th>
+                        <th>تاريخ المراجعة</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for record in records %}
+                <tr>
+                    <td class="fw-bold">{{ record.visit_date.strftime('%Y-%m-%d') }}</td>
+                    <td class="fw-semibold">{{ record.patient.user.full_name }}</td>
+                    <td>د. {{ record.doctor.user.full_name }}</td>
+                    <td><small class="text-muted">{{ record.chief_complaint[:40] }}{% if record.chief_complaint|length > 40 %}...{% endif %}</small></td>
+                    <td><span class="badge bg-light text-dark border">{{ record.diagnosis[:40] }}{% if record.diagnosis|length > 40 %}...{% endif %}</span></td>
+                    <td>
+                        {% if record.follow_up_date %}
+                        <small class="text-primary">{{ record.follow_up_date.strftime('%Y-%m-%d') }}</small>
+                        {% else %}
+                        <small class="text-muted">غير محدد</small>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('medical_record.detail', record_id=record.id) }}" class="btn btn-sm btn-outline-info">👁️ عرض</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="7" class="text-center text-muted py-5">لا توجد سجلات طبية مسجلة بعد</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

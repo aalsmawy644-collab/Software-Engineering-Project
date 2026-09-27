@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}سجلاتي الطبية — نظام إدارة العيادة{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">📋 سجلاتي وتقاريري الطبية</h2>
+        <span class="text-muted">جميع نتائج الكشوفات والتشخيصات الصادرة من الأطباء</span>
+    </div>
+</div>
+
+{% if records %}
+<div class="row g-3">
+{% for record in records %}
+<div class="col-12">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <div>
+                <strong class="fs-6">📅 كشف بتاريخ: {{ record.visit_date.strftime('%Y-%m-%d') }}</strong>
+                <span class="text-muted ms-2">بواسطة: د. {{ record.doctor.user.full_name }} ({{ record.doctor.specialty }})</span>
+            </div>
+            <a href="{{ url_for('medical_record.detail', record_id=record.id) }}" class="btn btn-sm btn-outline-info">
+                👁️ عرض التفاصيل الكاملة
+            </a>
+        </div>
+        <div class="card-body p-4">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <p class="mb-2"><strong class="text-secondary">الشكوى الرئيسية:</strong> {{ record.chief_complaint }}</p>
+                    <p class="mb-0"><strong class="text-secondary">التشخيص الطبي:</strong> <span class="fw-bold text-dark">{{ record.diagnosis }}</span></p>
+                </div>
+                <div class="col-md-6">
+                    {% if record.follow_up_date %}
+                    <p class="mb-2"><strong class="text-secondary">تاريخ المراجعة:</strong> {{ record.follow_up_date.strftime('%Y-%m-%d') }}</p>
+                    {% endif %}
+                    {% if record.prescriptions %}
+                    <p class="mb-0"><strong class="text-secondary">الوصفات المرتبطة:</strong> <span class="badge bg-success">{{ record.prescriptions|length }} وصفة</span></p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5">
+    <div style="font-size: 3rem;">📋</div>
+    <p class="text-muted mt-2">لا توجد سجلات طبية مسجلة في ملفك حتى الآن.</p>
+</div>
+{% endif %}
+{% endblock %}

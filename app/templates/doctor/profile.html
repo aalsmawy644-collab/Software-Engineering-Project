@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}الملف الشخصي للطبيب — نظام الشفاء للرعاية الصحية{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">👤 الملف الشخصي والمهني</h2>
+        <span class="text-muted">عرض وتعديل بيانات الطبيب وساعات العمل المعتمدة</span>
+    </div>
+    <a href="{{ url_for('doctor.edit_profile') }}" class="btn btn-outline-primary px-3 py-2">
+        ✏️ تعديل الملف وساعات الدوام
+    </a>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm border text-center">
+            <div class="card-body py-5">
+                <div class="avatar-circle mx-auto mb-3" style="width:90px;height:90px;font-size:2.2rem;">
+                    {{ current_user.first_name[0] }}{{ current_user.last_name[0] }}
+                </div>
+                <h4 class="fw-bold mb-1">د. {{ current_user.full_name }}</h4>
+                <p class="text-primary fw-semibold mb-3">{{ doctor.specialty }}</p>
+                <div class="d-flex flex-column gap-2 align-items-center">
+                    <span class="badge bg-{% if doctor.is_available %}success{% else %}secondary{% endif %} px-3 py-2">
+                        {% if doctor.is_available %}🟢 متاح لاستقبال الحجوزات{% else %}🔴 غير متاح حالياً{% endif %}
+                    </span>
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2">
+                        ⏰ ساعات الدوام: {{ doctor.working_hours_arabic }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card shadow-sm border">
+            <div class="card-header bg-white py-3 fw-bold">📋 البيانات المهنية والتشغيلية</div>
+            <div class="card-body p-4">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4 text-muted">البريد الإلكتروني:</dt>
+                    <dd class="col-sm-8 fw-semibold">{{ current_user.email }}</dd>
+
+                    <dt class="col-sm-4 text-muted">رقم الهاتف:</dt>
+                    <dd class="col-sm-8">{{ current_user.phone or 'غير مسجل' }}</dd>
+
+                    <dt class="col-sm-4 text-muted">رقم ترخيص المزاولة:</dt>
+                    <dd class="col-sm-8"><code>{{ doctor.license_number }}</code></dd>
+
+                    <dt class="col-sm-4 text-muted">التخصص الطبي:</dt>
+                    <dd class="col-sm-8">{{ doctor.specialty }}</dd>
+
+                    <dt class="col-sm-4 text-muted">فترة وساعات الدوام اليومي:</dt>
+                    <dd class="col-sm-8 text-primary fw-bold">
+                        🕒 {{ doctor.working_hours_arabic }} ({{ doctor.working_start_time.strftime('%H:%M') }} - {{ doctor.working_end_time.strftime('%H:%M') }})
+                    </dd>
+
+                    <dt class="col-sm-4 text-muted">سنوات الخبرة:</dt>
+                    <dd class="col-sm-8">{{ doctor.experience_years }} سنوات</dd>
+
+                    <dt class="col-sm-4 text-muted">سعر الاستشارة / الكشف:</dt>
+                    <dd class="col-sm-8 text-success fw-bold">{{ '%.2f'|format(doctor.consultation_fee) }} ر.س</dd>
+
+                    <dt class="col-sm-4 text-muted">تاريخ الانضمام للكادر:</dt>
+                    <dd class="col-sm-8">{{ current_user.created_at.strftime('%Y-%m-%d') }}</dd>
+                </dl>
+                {% if doctor.bio %}
+                <hr>
+                <h6 class="fw-bold text-dark mb-2">نبذة مهنية</h6>
+                <p class="text-muted mb-0">{{ doctor.bio }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

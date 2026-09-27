@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}تعديل الملف الشخصي وساعات الدوام — نظام الشفاء للرعاية الصحية{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">✏️ تعديل الملف الشخصي وفترات الدوام</h2>
+        <span class="text-muted">تحديد ساعات استقبال المرضى وسعر الكشف والبيانات المهنية</span>
+    </div>
+    <a href="{{ url_for('doctor.profile') }}" class="btn btn-outline-secondary">
+        &larr; العودة للملف
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border">
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('doctor.edit_profile') }}" novalidate>
+                    <h5 class="text-primary fw-bold mb-3">👤 البيانات الشخصية</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">الاسم الأول</label>
+                            <input type="text" class="form-control" name="first_name" value="{{ current_user.first_name }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">اسم العائلة</label>
+                            <input type="text" class="form-control" name="last_name" value="{{ current_user.last_name }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">رقم الهاتف</label>
+                            <input type="tel" class="form-control" name="phone" value="{{ current_user.phone or '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">سعر الكشف (ر.س)</label>
+                            <input type="number" class="form-control" name="consultation_fee" value="{{ doctor.consultation_fee }}" step="0.01">
+                        </div>
+                    </div>
+
+                    <hr>
+                    <h5 class="text-success fw-bold mb-3">🕒 إعدادات فترات وساعات الدوام</h5>
+                    <div class="p-3 bg-light rounded-3 border mb-4">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">بداية فترة الدوام (Shift Start) *</label>
+                                <input type="time" class="form-control" name="working_start_time" value="{{ doctor.working_start_time.strftime('%H:%M') }}" required>
+                                <small class="text-muted">أول وقت يمكن للمرضى حجز موعد فيه</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">نهاية فترة الدوام (Shift End) *</label>
+                                <input type="time" class="form-control" name="working_end_time" value="{{ doctor.working_end_time.strftime('%H:%M') }}" required>
+                                <small class="text-muted">آخر وقت تنتهي فيه فترة الكشوفات</small>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check form-switch mt-2">
+                                    <input class="form-check-input" type="checkbox" name="is_available" id="is_available" {% if doctor.is_available %}checked{% endif %}>
+                                    <label class="form-check-label fw-semibold" for="is_available">متاح حالياً لاستقبال الحجوزات والمواعيد</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">النبذة والسيرة الذاتية</label>
+                            <textarea class="form-control" name="bio" rows="3">{{ doctor.bio or '' }}</textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">كلمة المرور الجديدة <small class="text-muted">(اتركها فارغة للإبقاء على الحالية)</small></label>
+                            <input type="password" class="form-control" name="new_password" placeholder="أدخل كلمة مرور جديدة للتغيير">
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4 pt-3 border-top">
+                        <button type="submit" class="btn btn-primary px-4 py-2 fw-semibold">
+                            💾 حفظ التعديلات وساعات الدوام
+                        </button>
+                        <a href="{{ url_for('doctor.profile') }}" class="btn btn-outline-secondary px-4 py-2">
+                            إلغاء
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

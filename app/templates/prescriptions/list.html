@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}الوصفات الطبية — نظام إدارة العيادة{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">💊 الوصفات العلاجية والدوائية</h2>
+        <span class="text-muted">استعراض وإصدار الروشتات الطبية للمرضى</span>
+    </div>
+    {% if current_user.is_doctor() or current_user.is_admin() %}
+    <a href="{{ url_for('prescription.create') }}" class="btn btn-success px-3 py-2 shadow-sm">
+        ➕ إنشاء وصفة علاجية جديدة
+    </a>
+    {% endif %}
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>رقم الوصفة</th>
+                        <th>اسم المريض</th>
+                        <th>الطبيب المعالج</th>
+                        <th>تاريخ الإصدار</th>
+                        <th>عدد الأدوية</th>
+                        <th>الحالة</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for rx in prescriptions %}
+                <tr>
+                    <td>#{{ rx.id }}</td>
+                    <td class="fw-semibold">{{ rx.patient.user.full_name }}</td>
+                    <td>د. {{ rx.doctor.user.full_name }}</td>
+                    <td>{{ rx.prescription_date.strftime('%Y-%m-%d') }}</td>
+                    <td><span class="badge bg-light text-dark border">{{ rx.items|length }} دواء</span></td>
+                    <td>
+                        <span class="badge bg-{% if rx.is_active %}success{% else %}secondary{% endif %}">
+                            {% if rx.is_active %}نشطة{% else %}منتهية{% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('prescription.detail', prescription_id=rx.id) }}" class="btn btn-sm btn-outline-success">
+                            👁️ تفاصيل وطباعة
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="7" class="text-center text-muted py-5">لا توجد وصفات طبية مسجلة بعد</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

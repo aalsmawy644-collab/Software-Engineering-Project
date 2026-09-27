@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}مواعيدي — نظام إدارة العيادة{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">📅 جدول مواعيد الطبيب</h2>
+        <span class="text-muted">متابعة وإدارة كشوفات المرضى وتحديث حالاتها</span>
+    </div>
+    <a href="{{ url_for('appointment.book') }}" class="btn btn-primary px-3 py-2 shadow-sm">
+        ➕ حجز موعد جديد
+    </a>
+</div>
+
+<div class="card shadow-sm border-0 mb-3">
+    <div class="card-body p-3">
+        <div class="btn-group">
+            <a href="{{ url_for('doctor.appointments') }}" class="btn btn-{% if not status_filter %}primary{% else %}outline-primary{% endif %}">الكل</a>
+            <a href="{{ url_for('doctor.appointments', status='Scheduled') }}" class="btn btn-{% if status_filter == 'Scheduled' %}primary{% else %}outline-primary{% endif %}">المجدولة</a>
+            <a href="{{ url_for('doctor.appointments', status='Completed') }}" class="btn btn-{% if status_filter == 'Completed' %}success{% else %}outline-success{% endif %}">المكتملة</a>
+            <a href="{{ url_for('doctor.appointments', status='Cancelled') }}" class="btn btn-{% if status_filter == 'Cancelled' %}danger{% else %}outline-danger{% endif %}">الملغية</a>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>الوقت</th>
+                        <th>اسم المريض</th>
+                        <th>سبب الكشف</th>
+                        <th>الحالة</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for appt in appointments %}
+                <tr>
+                    <td class="fw-bold">{{ appt.appointment_date.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ appt.appointment_time.strftime('%I:%M %p') }}</td>
+                    <td class="fw-semibold">{{ appt.patient.user.full_name }}</td>
+                    <td><small class="text-muted">{{ appt.reason or 'كشف روتيني' }}</small></td>
+                    <td>
+                        <span class="badge bg-{% if appt.status == 'Completed' %}success{% elif appt.status == 'Cancelled' %}danger{% else %}primary{% endif %}">
+                            {% if appt.status == 'Completed' %}مكتمل{% elif appt.status == 'Cancelled' %}ملغي{% else %}مجدول{% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('appointment.detail', appt_id=appt.id) }}" class="btn btn-sm btn-outline-secondary">👁️ تفاصيل</a>
+                        {% if appt.status == 'Scheduled' %}
+                        <form method="POST" action="{{ url_for('doctor.complete_appointment', appt_id=appt.id) }}" class="d-inline">
+                            <button class="btn btn-sm btn-success">✅ إنهاء الكشف</button>
+                        </form>
+                        {% endif %}
+                        {% if appt.status == 'Completed' and not appt.medical_record %}
+                        <a href="{{ url_for('medical_record.create') }}" class="btn btn-sm btn-info text-white">📋 كتابة تقرير</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="text-center text-muted py-5">لا توجد مواعيد مسجلة ضمن هذا التصنيف</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

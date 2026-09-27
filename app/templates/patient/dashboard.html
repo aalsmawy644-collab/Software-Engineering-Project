@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}لوحة تحكم المريض — نظام إدارة العيادة{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">📊 ملفي الصحي الشخصي</h2>
+        <span class="text-muted">مرحباً بك، {{ current_user.full_name }}</span>
+    </div>
+    <a href="{{ url_for('appointment.book') }}" class="btn btn-primary px-3 py-2 shadow-sm">
+        ➕ حجز موعد جديد
+    </a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white fw-semibold py-3 d-flex justify-content-between align-items-center">
+                <span>📅 المواعيد القادمة</span>
+                <a href="{{ url_for('appointment.book') }}" class="btn btn-sm btn-outline-primary">حجز موعد</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>التاريخ</th>
+                                <th>الوقت</th>
+                                <th>الطبيب</th>
+                                <th>السبب</th>
+                                <th>الحالة</th>
+                                <th>الإجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for appt in upcoming_appointments %}
+                        <tr>
+                            <td class="fw-bold">{{ appt.appointment_date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ appt.appointment_time.strftime('%I:%M %p') }}</td>
+                            <td>د. {{ appt.doctor.user.full_name }} ({{ appt.doctor.specialty }})</td>
+                            <td><small class="text-muted">{{ appt.reason or 'كشف' }}</small></td>
+                            <td><span class="badge bg-primary">مجدول</span></td>
+                            <td>
+                                <form method="POST" action="{{ url_for('appointment.cancel', appt_id=appt.id) }}" class="d-inline" onsubmit="return confirm('هل أنت متأكد من إلغاء هذا الموعد؟')">
+                                    <button class="btn btn-sm btn-outline-danger">❌ إلغاء</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="6" class="text-center text-muted py-4">لا توجد مواعيد قادمة حالياً. <a href="{{ url_for('appointment.book') }}">احجز موعدك الآن</a></td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white fw-semibold py-3 d-flex justify-content-between align-items-center">
+                <span>📋 آخر التقارير الطبية المسجلة</span>
+                <a href="{{ url_for('patient.medical_records') }}" class="btn btn-sm btn-outline-info">عرض الكل</a>
+            </div>
+            <ul class="list-group list-group-flush">
+            {% for record in medical_records %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="fw-bold">{{ record.diagnosis[:55] }}{% if record.diagnosis|length > 55 %}...{% endif %}</div>
+                    <small class="text-muted">د. {{ record.doctor.user.full_name }} &bull; {{ record.visit_date.strftime('%Y-%m-%d') }}</small>
+                </div>
+                <a href="{{ url_for('medical_record.detail', record_id=record.id) }}" class="btn btn-sm btn-outline-secondary">👁️ عرض التقرير</a>
+            </li>
+            {% else %}
+            <li class="list-group-item text-center text-muted py-4">لا توجد سجلات طبية مسجلة بعد</li>
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 mb-4 text-center">
+            <div class="card-body p-4">
+                <div class="avatar-circle mx-auto mb-3">{{ current_user.first_name[0] }}{{ current_user.last_name[0] }}</div>
+                <h5 class="fw-bold mb-1">{{ current_user.full_name }}</h5>
+                <p class="text-muted mb-2">العمر: {{ patient.age }} سنة</p>
+                <div class="d-flex justify-content-center gap-2">
+                    <span class="badge bg-danger">فصيلة الدم: {{ patient.blood_type or 'غير محدد' }}</span>
+                    <span class="badge bg-primary">الجنس: {% if patient.gender == 'Male' %}ذكر{% else %}أنثى{% endif %}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white fw-semibold py-3">
+                💊 الوصفات الدوائية النشطة
+            </div>
+            <ul class="list-group list-group-flush">
+            {% for rx in active_prescriptions %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="fw-bold small">{{ rx.prescription_date.strftime('%Y-%m-%d') }}</div>
+                    <small class="text-muted">د. {{ rx.doctor.user.full_name }} &bull; {{ rx.items|length }} دواء</small>
+                </div>
+                <a href="{{ url_for('prescription.detail', prescription_id=rx.id) }}" class="btn btn-sm btn-outline-success">👁️ تفاصيل</a>
+            </li>
+            {% else %}
+            <li class="list-group-item text-center text-muted py-4">لا توجد وصفات نشطة</li>
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}مرضاي — نظام إدارة العيادة{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">👥 قائمة المرضى المعالجين</h2>
+        <span class="text-muted">المرضى الذين قاموا بزيارتك في العيادة</span>
+    </div>
+</div>
+
+<div class="row g-3">
+{% for patient in patients %}
+<div class="col-md-6 col-lg-4">
+    <div class="card shadow-sm border-0 h-100">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-3">
+                <div class="avatar-circle me-3 ms-2">{{ patient.user.first_name[0] }}{{ patient.user.last_name[0] }}</div>
+                <div>
+                    <h5 class="mb-0 fw-bold">{{ patient.user.full_name }}</h5>
+                    <small class="text-muted">العمر: {{ patient.age }} سنة &bull; {% if patient.gender == 'Male' %}ذكر{% else %}أنثى{% endif %}</small>
+                </div>
+            </div>
+            <hr>
+            <div class="small">
+                <div class="mb-2">🩸 فصيلة الدم: <strong>{{ patient.blood_type or 'غير محدد' }}</strong></div>
+                <div class="mb-2">📞 الهاتف: <strong>{{ patient.user.phone or 'غير متوفر' }}</strong></div>
+                {% if patient.chronic_conditions and patient.chronic_conditions != 'None' %}
+                <div class="mb-2 text-danger">⚠️ أمراض مزمنة: <strong>{{ patient.chronic_conditions }}</strong></div>
+                {% endif %}
+                {% if patient.allergies and patient.allergies != 'None' %}
+                <div class="mb-2 text-warning">⚠️ حساسية: <strong>{{ patient.allergies }}</strong></div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card-footer bg-white border-0 p-3">
+            <a href="{{ url_for('appointment.book') }}" class="btn btn-sm btn-outline-primary w-100">
+                📅 حجز موعد متابعة
+            </a>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="col-12 text-center text-muted py-5">
+    <div style="font-size: 3rem;">👥</div>
+    <p class="mt-2">لا يوجد مرضى في سجلك الطبي حتى الآن.</p>
+</div>
+{% endfor %}
+</div>
+{% endblock %}

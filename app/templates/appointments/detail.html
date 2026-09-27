@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}تفاصيل الموعد — نظام إدارة العيادة{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">📅 تفاصيل الموعد #{{ appointment.id }}</h2>
+        <span class="text-muted">عرض تفاصيل الكشف والحالة والتقارير المرتبطة</span>
+    </div>
+    <a href="{{ url_for('appointment.list_appointments') }}" class="btn btn-outline-secondary">
+        &larr; العودة للمواعيد
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <strong class="fs-6">موعد رقم #{{ appointment.id }}</strong>
+                <span class="badge bg-{% if appointment.status == 'Completed' %}success{% elif appointment.status == 'Cancelled' %}danger{% else %}primary{% endif %} fs-6">
+                    {% if appointment.status == 'Completed' %}مكتمل{% elif appointment.status == 'Cancelled' %}ملغي{% else %}مجدول{% endif %}
+                </span>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <h6 class="text-muted small fw-bold">بيانات المريض</h6>
+                        <p class="fw-bold fs-5 mb-1">{{ appointment.patient.user.full_name }}</p>
+                        <p class="text-muted small mb-0">{{ appointment.patient.user.email }} &bull; {{ appointment.patient.user.phone or 'بدون هاتف' }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted small fw-bold">الطبيب المعالج</h6>
+                        <p class="fw-bold fs-5 mb-1">د. {{ appointment.doctor.user.full_name }}</p>
+                        <p class="text-muted small mb-0">{{ appointment.doctor.specialty }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted small fw-bold">تاريخ ووقت الكشف</h6>
+                        <p class="mb-1">📅 {{ appointment.appointment_date.strftime('%Y-%m-%d') }}</p>
+                        <p class="mb-0">🕒 {{ appointment.appointment_time.strftime('%I:%M %p') }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted small fw-bold">المدة المحددة</h6>
+                        <p class="mb-0">⏱️ {{ appointment.duration_minutes }} دقيقة</p>
+                    </div>
+                    {% if appointment.reason %}
+                    <div class="col-12">
+                        <h6 class="text-muted small fw-bold">سبب الزيارة</h6>
+                        <div class="p-3 bg-light rounded">{{ appointment.reason }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% if appointment.status == 'Scheduled' %}
+            <div class="card-footer bg-white p-3 d-flex gap-2">
+                {% if current_user.is_admin() or current_user.is_doctor() %}
+                <form method="POST" action="{{ url_for('appointment.complete', appt_id=appointment.id) }}">
+                    <button class="btn btn-success fw-semibold">✅ تعليم الموعد كمكتمل</button>
+                </form>
+                {% endif %}
+                <form method="POST" action="{{ url_for('appointment.cancel', appt_id=appointment.id) }}" onsubmit="return confirm('هل أنت متأكد من إلغاء هذا الموعد؟')">
+                    <button class="btn btn-danger fw-semibold">❌ إلغاء الموعد</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if appointment.medical_record %}
+        <div class="card shadow-sm border-0 mb-3">
+            <div class="card-header bg-white fw-bold py-3">📋 التقرير الطبي المسجل لهذا الموعد</div>
+            <div class="card-body p-4">
+                <p><strong>التشخيص الطبي:</strong> {{ appointment.medical_record.diagnosis }}</p>
+                <a href="{{ url_for('medical_record.detail', record_id=appointment.medical_record.id) }}" class="btn btn-sm btn-outline-info">
+                    👁️ عرض التقرير الطبي الكامل
+                </a>
+            </div>
+        </div>
+        {% elif appointment.status == 'Completed' and (current_user.is_admin() or current_user.is_doctor()) %}
+        <div class="card shadow-sm border-0 mb-3 text-center p-4">
+            <p class="text-muted mb-3">اكتمل الموعد. يمكنك الآن تسجيل التقرير الطبي والتشخيص.</p>
+            <a href="{{ url_for('medical_record.create') }}" class="btn btn-primary d-inline-block">
+                📋 إنشاء تقرير طبي لهذا الكشف
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

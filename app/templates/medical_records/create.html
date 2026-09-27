@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}تسجيل تقرير طبي جديد — نظام إدارة العيادة{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">📋 تسجيل تقرير طبي جديد</h2>
+        <span class="text-muted">تدوين الشكوى والتشخيص السريري وخطة العلاج</span>
+    </div>
+    <a href="{{ url_for('medical_record.list_records') }}" class="btn btn-outline-secondary">
+        &larr; العودة للسجلات
+    </a>
+</div>
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('medical_record.create') }}" novalidate>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">المريض *</label>
+                            <select class="form-select" name="patient_id" required>
+                                <option value="">اختر المريض...</option>
+                                {% for patient in patients %}
+                                <option value="{{ patient.id }}">{{ patient.user.full_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">الموعد المرتبط (اختياري)</label>
+                            <select class="form-select" name="appointment_id">
+                                <option value="">بدون موعد مسبق</option>
+                                {% for appt in appointments %}
+                                <option value="{{ appt.id }}">{{ appt.appointment_date.strftime('%Y-%m-%d') }} - {{ appt.patient.user.full_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">تاريخ الزيارة والكشف *</label>
+                            <input type="date" class="form-control" name="visit_date" value="{{ today }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">تاريخ المراجعة القادمة (اختياري)</label>
+                            <input type="date" class="form-control" name="follow_up_date">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">الشكوى الرئيسية للمريض (Chief Complaint) *</label>
+                            <textarea class="form-control" name="chief_complaint" rows="2" required placeholder="أعراض المريض والشكوى الأساسية..."></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">التشخيص الطبي السريري (Diagnosis) *</label>
+                            <textarea class="form-control" name="diagnosis" rows="3" required placeholder="التشخيص النهائي للحالة..."></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">الخطة العلاجية والتوصيات (Treatment Plan)</label>
+                            <textarea class="form-control" name="treatment_plan" rows="3" placeholder="توصيات الراحة، الفحوصات المطلوبة، الحمية الغذائية..."></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">ملاحظات إضافية وفحوصات حيوية (Notes)</label>
+                            <textarea class="form-control" name="notes" rows="2" placeholder="ضغط الدم، النبض، الحرارة، الوزن..."></textarea>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary px-4 py-2 fw-semibold">
+                            💾 حفظ واعتماد التقرير الطبي
+                        </button>
+                        <a href="{{ url_for('medical_record.list_records') }}" class="btn btn-outline-secondary px-4 py-2">
+                            إلغاء
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}إنشاء وصفة علاجية — نظام إدارة العيادة{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">💊 إنشاء وصفة علاجية جديدة</h2>
+        <span class="text-muted">إضافة الأدوية والجرعات والتكرار والمدة للمريض</span>
+    </div>
+    <a href="{{ url_for('prescription.list_prescriptions') }}" class="btn btn-outline-secondary">
+        &larr; العودة للوصفات
+    </a>
+</div>
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('prescription.create') }}" novalidate>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">المريض *</label>
+                            <select class="form-select" name="patient_id" required>
+                                <option value="">اختر المريض...</option>
+                                {% for patient in patients %}
+                                <option value="{{ patient.id }}">{{ patient.user.full_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">التقرير الطبي المرتبط (اختياري)</label>
+                            <select class="form-select" name="medical_record_id">
+                                <option value="">بدون تقرير</option>
+                                {% for record in records %}
+                                <option value="{{ record.id }}">{{ record.visit_date.strftime('%Y-%m-%d') }} - {{ record.patient.user.full_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">تاريخ تحرير الوصفة *</label>
+                            <input type="date" class="form-control" name="prescription_date" value="{{ today }}" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">تعليمات وإرشادات عامة للمريض</label>
+                            <textarea class="form-control" name="instructions" rows="2" placeholder="تناول الأدوية بعد الوجبات مع شرب كميات كافية من الماء..."></textarea>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0 text-success">💊 قائمة الأدوية الموصوفة</h5>
+                        <button type="button" class="btn btn-success btn-sm" onclick="addMedicineRow()">
+                            ➕ إضافة دواء آخر
+                        </button>
+                    </div>
+                    <div id="medicines-container">
+                        <div class="medicine-row mb-2">
+                            <div class="row g-2 align-items-end">
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-semibold">اسم الدواء *</label>
+                                    <input type="text" class="form-control form-control-sm" name="medicine_name" required placeholder="مثال: Amoxicillin">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label small fw-semibold">الجرعة *</label>
+                                    <input type="text" class="form-control form-control-sm" name="dosage" required placeholder="مثال: 500mg">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label small fw-semibold">التكرار *</label>
+                                    <input type="text" class="form-control form-control-sm" name="frequency" required placeholder="3 مرات يومياً">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label small fw-semibold">المدة *</label>
+                                    <input type="text" class="form-control form-control-sm" name="duration" required placeholder="7 أيام">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label small fw-semibold">إرشادات خاصة</label>
+                                    <input type="text" class="form-control form-control-sm" name="item_instructions" placeholder="بعد الأكل...">
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="button" class="btn btn-danger btn-sm w-100" onclick="removeMedicineRow(this)" title="حذف الدواء">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-success px-4 py-2 fw-semibold">
+                            ✅ حفظ واعتماد الوصفة
+                        </button>
+                        <a href="{{ url_for('prescription.list_prescriptions') }}" class="btn btn-outline-secondary px-4 py-2">
+                            إلغاء
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

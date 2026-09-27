@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}حجز موعد كشف طبي — نظام الشفاء للرعاية الصحية{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">📅 حجز موعد كشف طبي</h2>
+        <span class="text-muted">اختيار الطبيب والتاريخ والوقت وفق ساعات الدوام المعتمدة للطبيب</span>
+    </div>
+    <a href="{{ url_for('appointment.list_appointments') }}" class="btn btn-outline-secondary">
+        &larr; العودة للمواعيد
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border">
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('appointment.book') }}" id="bookingForm" novalidate>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">المريض *</label>
+                            {% if current_user.is_patient() %}
+                                <!-- للمريض: تظهر بيانات حسابه فقط بشكل ثابت لمنع حجز موعد باسم شخص آخر -->
+                                <input type="hidden" name="patient_id" value="{{ current_user.patient_profile.id }}">
+                                <div class="form-control bg-light d-flex align-items-center justify-content-between">
+                                    <span class="fw-bold text-primary">👤 {{ current_user.full_name }}</span>
+                                    <span class="badge bg-secondary">حسابك الحالي</span>
+                                </div>
+                            {% else %}
+                                <!-- للمدير / الإدارة: قائمة لاختيار المريض المطلوب -->
+                                <select class="form-select" name="patient_id" required>
+                                    <option value="">اختر المريض...</option>
+                                    {% for patient in patients %}
+                                    <option value="{{ patient.id }}" {% if selected_patient_id == patient.id %}selected{% endif %}>
+                                        {{ patient.user.full_name }} ({{ patient.user.phone or patient.user.email }})
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">الطبيب المعالج *</label>
+                            <select class="form-select" name="doctor_id" id="doctorSelect" required>
+                                <option value="">اختر الطبيب والتخصص...</option>
+                                {% for doctor in doctors %}
+                                <option value="{{ doctor.id }}"
+                                        data-start="{{ doctor.working_start_time.strftime('%H:%M') }}"
+                                        data-end="{{ doctor.working_end_time.strftime('%H:%M') }}"
+                                        data-hours="{{ doctor.working_hours_arabic }}"
+                                        data-fee="{{ '%.0f'|format(doctor.consultation_fee) }}">
+                                    د. {{ doctor.user.full_name }} &bull; {{ doctor.specialty }} (دوام: {{ doctor.working_hours_str }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <!-- Doctor Schedule Dynamic Alert Badge -->
+                            <div id="doctorScheduleNotice" class="mt-2" style="display: none;">
+                                <div class="p-2 px-3 bg-primary-subtle text-primary border border-primary-subtle rounded-2 small fw-semibold d-flex align-items-center gap-2">
+                                    <span>🕒</span>
+                                    <span id="doctorScheduleText">ساعات الدوام المعتمدة للطبيب:</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">تاريخ الموعد *</label>
+                            <input type="date" class="form-control" name="appointment_date" min="{{ today }}" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">وقت الموعد *</label>
+                            <input type="time" class="form-control" name="appointment_time" id="appointmentTimeInput" min="08:00" max="18:00" required>
+                            <small class="text-muted d-block mt-1" id="timeHelpText">يتم قبول المواعيد ضمن ساعات دوام الطبيب فقط.</small>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">مدة الكشف التقديرية</label>
+                            <select class="form-select" name="duration">
+                                <option value="15">15 دقيقة</option>
+                                <option value="30" selected>30 دقيقة</option>
+                                <option value="45">45 دقيقة</option>
+                                <option value="60">60 دقيقة</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">رسوم الاستشارة المقدرة</label>
+                            <div class="form-control bg-light text-success fw-bold" id="feeDisplay">
+                                -- ر.س
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">سبب الزيارة أو الأعراض التي تشعر بها</label>
+                            <textarea class="form-control" name="reason" rows="3" placeholder="صف سبب الكشف أو الأعراض باختصار لمساعدة الطبيب..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4 pt-3 border-top">
+                        <button type="submit" class="btn btn-primary px-4 py-2 fw-semibold shadow-sm">
+                            📅 تأكيد وحجز الموعد
+                        </button>
+                        <a href="{{ url_for('appointment.list_appointments') }}" class="btn btn-outline-secondary px-4 py-2">
+                            إلغاء
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const doctorSelect = document.getElementById('doctorSelect');
+    const timeInput = document.getElementById('appointmentTimeInput');
+    const noticeBox = document.getElementById('doctorScheduleNotice');
+    const noticeText = document.getElementById('doctorScheduleText');
+    const timeHelpText = document.getElementById('timeHelpText');
+    const feeDisplay = document.getElementById('feeDisplay');
+
+    function updateDoctorSchedule() {
+        const selectedOption = doctorSelect.options[doctorSelect.selectedIndex];
+        if (selectedOption && selectedOption.value) {
+            const startTime = selectedOption.getAttribute('data-start') || '09:00';
+            const endTime = selectedOption.getAttribute('data-end') || '17:00';
+            const hoursArabic = selectedOption.getAttribute('data-hours') || (startTime + ' - ' + endTime);
+            const fee = selectedOption.getAttribute('data-fee') || '0';
+
+            timeInput.min = startTime;
+            timeInput.max = endTime;
+
+            noticeText.innerHTML = `<strong>ساعات دوام الطبيب:</strong> ${hoursArabic}`;
+            noticeBox.style.display = 'block';
+            timeHelpText.innerHTML = `المواعيد المتاحة لدى الطبيب تبدأ من <strong>${startTime}</strong> حتى <strong>${endTime}</strong>.`;
+            feeDisplay.textContent = `${fee} ر.س`;
+        } else {
+            noticeBox.style.display = 'none';
+            timeInput.min = '08:00';
+            timeInput.max = '20:00';
+            timeHelpText.textContent = 'يتم قبول المواعيد ضمن ساعات دوام الطبيب فقط.';
+            feeDisplay.textContent = '-- ر.س';
+        }
+    }
+
+    doctorSelect.addEventListener('change', updateDoctorSchedule);
+    // Initialize if preselected
+    if (doctorSelect.value) {
+        updateDoctorSchedule();
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}روشتة علاجية #{{ prescription.id }} — نظام الشفاء للرعاية الصحية{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 no-print">
+    <div>
+        <h2 class="fw-bold mb-1">💊 تذكرة وصفة دوائية #{{ '%04d'|format(prescription.id) }}</h2>
+        <span class="text-muted">بيانات الروشتة والأدوية المصروفة للمريض</span>
+    </div>
+    <div class="d-flex gap-2">
+        <button onclick="window.print()" class="btn btn-outline-primary px-3 shadow-sm">
+            🖨️ طباعة الروشتة الرسمية
+        </button>
+        <a href="{{ url_for('prescription.list_prescriptions') }}" class="btn btn-outline-secondary">
+            &larr; العودة للوصفات
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card shadow-sm border mb-4" id="prescription-card">
+            <!-- Official Prescription Header -->
+            <div class="card-header bg-white py-4 border-bottom d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-3">
+                    <span style="font-size: 2.2rem;">🏥</span>
+                    <div>
+                        <h4 class="fw-bold mb-0 text-primary">عيادات الشفاء التخصصية</h4>
+                        <small class="text-muted">Al-Shifa Specialized Medical Clinics &bull; قسم الاستشارات والعلاج</small>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 fs-6">
+                        {% if prescription.is_active %}روشتة سارية ومعتمدة{% else %}وصفة منتهية{% endif %}
+                    </span>
+                    <small class="text-muted d-block mt-1">رقم الوصفة: RX-{{ '%05d'|format(prescription.id) }}</small>
+                </div>
+            </div>
+
+            <div class="card-body p-4">
+                <!-- Patient & Doctor Info Bar -->
+                <div class="row g-3 mb-4 p-3 bg-light rounded-3 border">
+                    <div class="col-md-6">
+                        <small class="text-secondary fw-semibold d-block">اسم المريض الكامل:</small>
+                        <span class="fw-bold fs-5 text-dark">{{ prescription.patient.user.full_name }}</span>
+                        <div class="text-muted small mt-1">
+                            العمر: {{ prescription.patient.age }} سنة &bull; فصيلة الدم: {{ prescription.patient.blood_type or 'غير محدد' }} &bull; الهاتف: {{ prescription.patient.user.phone or 'غير مسجل' }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-secondary fw-semibold d-block">الطبيب المعالج والمُحرر:</small>
+                        <span class="fw-bold fs-5 text-dark">د. {{ prescription.doctor.user.full_name }}</span>
+                        <div class="text-muted small mt-1">
+                            التخصص: {{ prescription.doctor.specialty }} &bull; ترخيص مهني: {{ prescription.doctor.license_number }}
+                        </div>
+                    </div>
+                    <div class="col-12 pt-2 border-top">
+                        <small class="text-muted">تاريخ تحرير الوصفة:</small>
+                        <strong class="text-dark">📅 {{ prescription.prescription_date.strftime('%Y-%m-%d') }}</strong>
+                    </div>
+                </div>
+
+                {% if prescription.instructions %}
+                <div class="alert alert-info py-2 mb-4">
+                    <strong>📌 تعليمات الطبيب وإرشادات الاستخدام:</strong> {{ prescription.instructions }}
+                </div>
+                {% endif %}
+
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h5 class="fw-bold mb-0 text-dark">📋 جدول الأدوية المعتمدة (Rx):</h5>
+                    <small class="text-muted">عدد الأصناف: {{ prescription.items|length }}</small>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">#</th>
+                                <th>اسم الدواء العلمي / التجاري</th>
+                                <th>الجرعة</th>
+                                <th>التكرار اليومي</th>
+                                <th>مدة العلاج</th>
+                                <th>إرشادات الصيدلي / المريض</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in prescription.items %}
+                        <tr>
+                            <td class="text-center">{{ loop.index }}</td>
+                            <td class="fw-bold text-primary">{{ item.medicine_name }}</td>
+                            <td><span class="badge bg-light text-dark border">{{ item.dosage }}</span></td>
+                            <td>{{ item.frequency }}</td>
+                            <td>{{ item.duration }}</td>
+                            <td><small class="text-muted">{{ item.instructions or 'حسب الإرشادات المعتمدة' }}</small></td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Footer Signature Box -->
+                <div class="row mt-5 pt-4 border-top text-center text-muted">
+                    <div class="col-6">
+                        <p class="mb-1 small">ختم واعتماد الطبيب المعالج</p>
+                        <p class="fw-bold text-dark fs-6 mt-3">د. {{ prescription.doctor.user.full_name }}</p>
+                        <small class="text-muted">التوقيع: ____________________</small>
+                    </div>
+                    <div class="col-6">
+                        <p class="mb-1 small">عيادات الشفاء التخصصية</p>
+                        <p class="fw-bold text-dark fs-6 mt-3">إدارة الصيدلية والرعاية السريرية</p>
+                        <small class="text-muted">الختم الرسمي للمركز</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
